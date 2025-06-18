@@ -13,7 +13,7 @@
     }
 
     .container {
-      max-width: 1000px;
+      max-width: 1200px;
       background: #ffffff;
       padding: 32px;
       border-radius: 8px;
@@ -23,6 +23,7 @@
 
     h2, h4 {
       color: #000;
+      font-family: 'Work Sans', sans-serif;
     }
 
     .highlight {
@@ -36,7 +37,13 @@
       background: #eeeeee;
       padding: 16px;
       border-radius: 6px;
-      margin-bottom: 24px;
+      margin-bottom: 16px;
+    }
+
+    canvas {
+      margin-top: 32px;
+      display: block;
+      max-width: 100%;
     }
 
     label {
@@ -45,21 +52,15 @@
       margin-bottom: 8px;
     }
 
-    canvas {
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-
     .charts {
       display: flex;
-      gap: 20px;
+      gap: 24px;
       flex-wrap: wrap;
       justify-content: space-between;
     }
 
-    .chart-wrapper {
-      flex: 1 1 48%;
+    .chart-box {
+      flex: 1 1 45%;
     }
   </style>
 </head>
@@ -73,7 +74,7 @@
 
     <!-- Catalogusprijs -->
     <label for="prijs">Kies een catalogusprijs:</label>
-    <input type="range" id="prijs" min="20000" max="60000" value="30000" step="1000" oninput="updateBijtelling()" style="width: 100%; margin-bottom: 8px;">
+    <input type="range" id="prijs" min="20000" max="60000" value="30000" step="1" oninput="updateBijtelling()" style="width: 100%; margin-bottom: 8px;">
     <p>Catalogusprijs: <strong>€<span id="prijsValue">30.000</span></strong></p>
 
     <!-- Netto bijtelling -->
@@ -87,23 +88,21 @@
     <div class="savings">
       <h4>Totale besparing als je in 2025 kiest</h4>
       <ul style="padding-left: 20px; margin: 0;">
-        <li>Na 1 jaar: €<span id="bespaar1">---</span></li>
-        <li>Na 2 jaar: €<span id="bespaar2">---</span></li>
-        <li>Na 3 jaar: €<span id="bespaar3">---</span></li>
-        <li>Na 4 jaar: €<span id="bespaar4">---</span></li>
-        <li>Na 5 jaar: €<span id="bespaar5">---</span></li>
+        <li>Na jaar 1: €<span id="bespaar1">---</span></li>
+        <li>Na jaar 2: €<span id="bespaar2">---</span></li>
+        <li>Na jaar 3: €<span id="bespaar3">---</span></li>
+        <li>Na jaar 4: €<span id="bespaar4">---</span></li>
+        <li>Na jaar 5: €<span id="bespaar5">---</span></li>
       </ul>
     </div>
 
-    <!-- Twee grafieken naast elkaar -->
+    <!-- Grafieken -->
     <div class="charts">
-      <div class="chart-wrapper">
-        <h4>Besparing na 1 jaar</h4>
-        <canvas id="chart1jaar" height="300"></canvas>
+      <div class="chart-box">
+        <canvas id="chart1jaar" width="500" height="300"></canvas>
       </div>
-      <div class="chart-wrapper">
-        <h4>Besparing na 5 jaar</h4>
-        <canvas id="chart5jaar" height="300"></canvas>
+      <div class="chart-box">
+        <canvas id="chart5jaar" width="500" height="300"></canvas>
       </div>
     </div>
 
@@ -129,6 +128,7 @@
 
       const maand2025 = totaal2025 / 12;
       const maand2026 = totaal2026 / 12;
+
       const besparingPerMaand = maand2026 - maand2025;
 
       document.getElementById("prijsValue").innerText = formatEuro(prijs);
@@ -140,32 +140,32 @@
         document.getElementById("bespaar" + i).innerText = formatEuro(Math.round(besparing));
       }
 
-      if (window.chart1 && window.chart5) {
-        window.chart1.data.datasets[0].data = [Math.round(maand2025 * 12), Math.round(maand2026 * 12)];
-        window.chart5.data.datasets[0].data = [Math.round(maand2025 * 60), Math.round(maand2026 * 60)];
-        window.chart1.update();
-        window.chart5.update();
+      if (window.chart1jaar && window.chart5jaar) {
+        window.chart1jaar.data.datasets[0].data = [Math.round(maand2025 * 12), Math.round(maand2026 * 12)];
+        window.chart1jaar.update();
+
+        window.chart5jaar.data.datasets[0].data = [Math.round(maand2025 * 60), Math.round(maand2026 * 60)];
+        window.chart5jaar.update();
       }
     }
 
     document.addEventListener("DOMContentLoaded", function () {
       const ctx1 = document.getElementById('chart1jaar').getContext('2d');
-      const ctx5 = document.getElementById('chart5jaar').getContext('2d');
+      const ctx2 = document.getElementById('chart5jaar').getContext('2d');
 
-      window.chart1 = new Chart(ctx1, {
+      window.chart1jaar = new Chart(ctx1, {
         type: 'bar',
         data: {
-          labels: ['2025', '2026'],
+          labels: ['2025 (17%)', 'Vanaf 2026 (22%)'],
           datasets: [{
             label: 'Bijtelling per jaar',
-            backgroundColor: ['#FFEB6D', '#000'],
+            backgroundColor: ['#FFEB6D', '#000000'],
             data: [0, 0]
           }]
         },
         options: {
-          plugins: {
-            legend: { display: false }
-          },
+          responsive: true,
+          plugins: { legend: { display: false }},
           scales: {
             x: { ticks: { color: '#000' }},
             y: { beginAtZero: true, ticks: { color: '#000' }}
@@ -173,20 +173,19 @@
         }
       });
 
-      window.chart5 = new Chart(ctx5, {
+      window.chart5jaar = new Chart(ctx2, {
         type: 'bar',
         data: {
-          labels: ['2025', '2026'],
+          labels: ['2025 (17%)', 'Vanaf 2026 (22%)'],
           datasets: [{
             label: 'Bijtelling over 5 jaar',
-            backgroundColor: ['#FFEB6D', '#000'],
+            backgroundColor: ['#FFEB6D', '#000000'],
             data: [0, 0]
           }]
         },
         options: {
-          plugins: {
-            legend: { display: false }
-          },
+          responsive: true,
+          plugins: { legend: { display: false }},
           scales: {
             x: { ticks: { color: '#000' }},
             y: { beginAtZero: true, ticks: { color: '#000' }}
