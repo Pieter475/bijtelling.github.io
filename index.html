@@ -13,7 +13,7 @@
     }
 
     .container {
-      max-width: 1200px;
+      max-width: 1000px;
       background: #ffffff;
       padding: 32px;
       border-radius: 8px;
@@ -23,7 +23,6 @@
 
     h2, h4 {
       color: #000;
-      font-family: 'Work Sans', sans-serif;
     }
 
     .highlight {
@@ -37,7 +36,6 @@
       background: #eeeeee;
       padding: 16px;
       border-radius: 6px;
-      margin-bottom: 16px;
     }
 
     canvas {
@@ -52,15 +50,17 @@
       margin-bottom: 8px;
     }
 
-    .charts {
+    .charts-container {
       display: flex;
-      gap: 24px;
-      flex-wrap: wrap;
       justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 32px;
     }
 
     .chart-box {
-      flex: 1 1 45%;
+      flex: 1;
+      min-width: 450px;
     }
   </style>
 </head>
@@ -97,12 +97,13 @@
     </div>
 
     <!-- Grafieken -->
-    <div class="charts">
+    <h4 style="margin-top: 40px;">Jaarlijkse besparing en besparing over 5 jaar</h4>
+    <div class="charts-container">
       <div class="chart-box">
-        <canvas id="chart1jaar" width="500" height="300"></canvas>
+        <canvas id="bijtellingChart1jaar" width="450" height="350"></canvas>
       </div>
       <div class="chart-box">
-        <canvas id="chart5jaar" width="500" height="300"></canvas>
+        <canvas id="bijtellingChart5jaar" width="450" height="350"></canvas>
       </div>
     </div>
 
@@ -150,25 +151,25 @@
     }
 
     document.addEventListener("DOMContentLoaded", function () {
-      const ctx1 = document.getElementById('chart1jaar').getContext('2d');
-      const ctx2 = document.getElementById('chart5jaar').getContext('2d');
+      const ctx1 = document.getElementById('bijtellingChart1jaar').getContext('2d');
+      const ctx2 = document.getElementById('bijtellingChart5jaar').getContext('2d');
 
       window.chart1jaar = new Chart(ctx1, {
         type: 'bar',
         data: {
           labels: ['2025 (17%)', 'Vanaf 2026 (22%)'],
           datasets: [{
-            label: 'Bijtelling per jaar',
-            backgroundColor: ['#FFEB6D', '#000000'],
+            label: 'Besparing per jaar',
+            backgroundColor: ['#FFEB6D', '#000'],
             data: [0, 0]
           }]
         },
         options: {
           responsive: true,
-          plugins: { legend: { display: false }},
+          plugins: { legend: { display: false } },
           scales: {
-            x: { ticks: { color: '#000' }},
-            y: { beginAtZero: true, ticks: { color: '#000' }}
+            x: { ticks: { color: '#000' } },
+            y: { beginAtZero: true, ticks: { color: '#000' } }
           }
         }
       });
@@ -178,17 +179,17 @@
         data: {
           labels: ['2025 (17%)', 'Vanaf 2026 (22%)'],
           datasets: [{
-            label: 'Bijtelling over 5 jaar',
-            backgroundColor: ['#FFEB6D', '#000000'],
+            label: 'Totale besparing over 5 jaar',
+            backgroundColor: ['#FFEB6D', '#000'],
             data: [0, 0]
           }]
         },
         options: {
           responsive: true,
-          plugins: { legend: { display: false }},
+          plugins: { legend: { display: false } },
           scales: {
-            x: { ticks: { color: '#000' }},
-            y: { beginAtZero: true, ticks: { color: '#000' }}
+            x: { ticks: { color: '#000' } },
+            y: { beginAtZero: true, ticks: { color: '#000' } }
           }
         }
       });
