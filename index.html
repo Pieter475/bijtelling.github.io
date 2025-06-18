@@ -84,8 +84,9 @@
       </ul>
     </div>
 
-    <!-- Grafiek -->
-    <canvas id="bijtellingChart" width="700" height="350"></canvas>
+    <!-- Twee grafieken -->
+    <canvas id="bijtellingChart2025" width="700" height="350"></canvas>
+    <canvas id="bijtellingChart2026" width="700" height="350"></canvas>
 
     <p style="font-size: 13px; color: #555; margin-top: 16px;">
       De berekening is een indicatie. Werkelijke bedragen kunnen afwijken op basis van jouw persoonlijke situatie.
@@ -121,53 +122,55 @@
         document.getElementById("bespaar" + i).innerText = formatEuro(Math.round(besparing));
       }
 
-      if (window.bijtellingChart) {
-        window.bijtellingChart.data.datasets[0].data = Array(5).fill(Math.round(maand2025));
-        window.bijtellingChart.data.datasets[1].data = Array(5).fill(Math.round(maand2026));
-        window.bijtellingChart.update();
+      if (window.chart2025 && window.chart2026) {
+        window.chart2025.data.datasets[0].data = Array(5).fill(Math.round(maand2025));
+        window.chart2025.update();
+
+        window.chart2026.data.datasets[0].data = Array(5).fill(Math.round(maand2026));
+        window.chart2026.update();
       }
     }
 
     document.addEventListener("DOMContentLoaded", function () {
-      const ctx = document.getElementById('bijtellingChart').getContext('2d');
-      window.bijtellingChart = new Chart(ctx, {
+      const ctx2025 = document.getElementById('bijtellingChart2025').getContext('2d');
+      const ctx2026 = document.getElementById('bijtellingChart2026').getContext('2d');
+
+      window.chart2025 = new Chart(ctx2025, {
         type: 'bar',
         data: {
           labels: ['Jaar 1', 'Jaar 2', 'Jaar 3', 'Jaar 4', 'Jaar 5'],
-          datasets: [
-            {
-              label: '2025 (17%)',
-              backgroundColor: '#FFEB6D',
-              data: [0, 0, 0, 0, 0]
-            },
-            {
-              label: 'Vanaf 2026 (22%)',
-              backgroundColor: '#000000',
-              data: [0, 0, 0, 0, 0]
-            }
-          ]
+          datasets: [{
+            label: '2025 (17%)',
+            backgroundColor: '#FFEB6D',
+            data: [0, 0, 0, 0, 0]
+          }]
         },
         options: {
           responsive: true,
-          plugins: {
-            legend: {
-              labels: {
-                color: '#000',
-                font: {
-                  family: 'Work Sans',
-                  size: 12
-                }
-              }
-            }
-          },
+          plugins: { legend: { labels: { color: '#000', font: { family: 'Work Sans', size: 12 }}}},
           scales: {
-            x: {
-              ticks: { color: '#000' }
-            },
-            y: {
-              beginAtZero: true,
-              ticks: { color: '#000' }
-            }
+            x: { ticks: { color: '#000' }},
+            y: { beginAtZero: true, ticks: { color: '#000' }}
+          }
+        }
+      });
+
+      window.chart2026 = new Chart(ctx2026, {
+        type: 'bar',
+        data: {
+          labels: ['Jaar 1', 'Jaar 2', 'Jaar 3', 'Jaar 4', 'Jaar 5'],
+          datasets: [{
+            label: 'Vanaf 2026 (22%)',
+            backgroundColor: '#000000',
+            data: [0, 0, 0, 0, 0]
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { labels: { color: '#000', font: { family: 'Work Sans', size: 12 }}}},
+          scales: {
+            x: { ticks: { color: '#000' }},
+            y: { beginAtZero: true, ticks: { color: '#000' }}
           }
         }
       });
