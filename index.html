@@ -25,11 +25,18 @@
       color: #000;
     }
 
-    .highlight, .savings {
+    .highlight {
       background: #FFEB6D;
       padding: 16px;
       border-radius: 6px;
       margin-bottom: 16px;
+    }
+
+    .savings {
+      background: #eeeeee;
+      padding: 16px;
+      border-radius: 6px;
+      margin-bottom: 24px;
     }
 
     label {
@@ -38,18 +45,21 @@
       margin-bottom: 8px;
     }
 
-    .charts {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 32px;
-      justify-content: center;
-    }
-
     canvas {
       background: #fff;
       border: 1px solid #ccc;
-      border-radius: 8px;
-      padding: 16px;
+      border-radius: 4px;
+    }
+
+    .charts {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+
+    .chart-wrapper {
+      flex: 1 1 48%;
     }
   </style>
 </head>
@@ -57,38 +67,49 @@
   <div class="container">
     <h2>Besparen met 17% bijtelling</h2>
     <p>
-      In 2025 betaal je 17% bijtelling over de eerste €30.000 van de cataloguswaarde van een elektrische auto. Alles daarboven wordt belast met 22%. 
-      Vanaf 2026 geldt 22% bijtelling over het volledige bedrag. Hieronder zie je het verschil in kosten tussen beide jaren.
+      In 2025 geldt 17% bijtelling tot €30.000. Daarboven betaal je 22%. Vanaf 2026 geldt over het volledige bedrag 22%. 
+      Deze tool laat zien hoeveel je per jaar en in totaal bespaart als je in 2025 nog kiest voor elektrisch.
     </p>
 
+    <!-- Catalogusprijs -->
     <label for="prijs">Kies een catalogusprijs:</label>
-    <input type="range" id="prijs" min="20000" max="60000" value="30000" step="1" oninput="updateBijtelling()" style="width: 100%; margin-bottom: 8px;">
+    <input type="range" id="prijs" min="20000" max="60000" value="30000" step="1000" oninput="updateBijtelling()" style="width: 100%; margin-bottom: 8px;">
     <p>Catalogusprijs: <strong>€<span id="prijsValue">30.000</span></strong></p>
 
+    <!-- Netto bijtelling -->
     <div class="highlight">
       <h4>Netto bijtelling per maand</h4>
       <p>🟡 <strong>2025 (17%):</strong> €<span id="bijtelling2025">---</span></p>
       <p>⚫ <strong>Vanaf 2026 (22%):</strong> €<span id="bijtelling2026">---</span></p>
     </div>
 
+    <!-- Totale besparing -->
     <div class="savings">
       <h4>Totale besparing als je in 2025 kiest</h4>
       <ul style="padding-left: 20px; margin: 0;">
         <li>Na 1 jaar: €<span id="bespaar1">---</span></li>
+        <li>Na 2 jaar: €<span id="bespaar2">---</span></li>
+        <li>Na 3 jaar: €<span id="bespaar3">---</span></li>
+        <li>Na 4 jaar: €<span id="bespaar4">---</span></li>
         <li>Na 5 jaar: €<span id="bespaar5">---</span></li>
       </ul>
     </div>
 
+    <!-- Twee grafieken naast elkaar -->
     <div class="charts">
-      <div>
+      <div class="chart-wrapper">
         <h4>Besparing na 1 jaar</h4>
-        <canvas id="chart1jaar" width="400" height="300"></canvas>
+        <canvas id="chart1jaar" height="300"></canvas>
       </div>
-      <div>
+      <div class="chart-wrapper">
         <h4>Besparing na 5 jaar</h4>
-        <canvas id="chart5jaar" width="400" height="300"></canvas>
+        <canvas id="chart5jaar" height="300"></canvas>
       </div>
     </div>
+
+    <p style="font-size: 13px; color: #555; margin-top: 16px;">
+      De berekening is een indicatie. Werkelijke bedragen kunnen afwijken op basis van jouw persoonlijke situatie.
+    </p>
   </div>
 
   <script>
@@ -108,67 +129,67 @@
 
       const maand2025 = totaal2025 / 12;
       const maand2026 = totaal2026 / 12;
-
-      const besparing1jaar = (maand2026 - maand2025) * 12;
-      const besparing5jaar = (maand2026 - maand2025) * 60;
+      const besparingPerMaand = maand2026 - maand2025;
 
       document.getElementById("prijsValue").innerText = formatEuro(prijs);
       document.getElementById("bijtelling2025").innerText = Math.round(maand2025);
       document.getElementById("bijtelling2026").innerText = Math.round(maand2026);
-      document.getElementById("bespaar1").innerText = formatEuro(Math.round(besparing1jaar));
-      document.getElementById("bespaar5").innerText = formatEuro(Math.round(besparing5jaar));
 
-      chart1jaar.data.datasets[0].data = [Math.round(maand2025 * 12), Math.round(maand2026 * 12)];
-      chart1jaar.update();
+      for (let i = 1; i <= 5; i++) {
+        const besparing = besparingPerMaand * 12 * i;
+        document.getElementById("bespaar" + i).innerText = formatEuro(Math.round(besparing));
+      }
 
-      chart5jaar.data.datasets[0].data = [Math.round(maand2025 * 60), Math.round(maand2026 * 60)];
-      chart5jaar.update();
+      if (window.chart1 && window.chart5) {
+        window.chart1.data.datasets[0].data = [Math.round(maand2025 * 12), Math.round(maand2026 * 12)];
+        window.chart5.data.datasets[0].data = [Math.round(maand2025 * 60), Math.round(maand2026 * 60)];
+        window.chart1.update();
+        window.chart5.update();
+      }
     }
-
-    let chart1jaar, chart5jaar;
 
     document.addEventListener("DOMContentLoaded", function () {
       const ctx1 = document.getElementById('chart1jaar').getContext('2d');
       const ctx5 = document.getElementById('chart5jaar').getContext('2d');
 
-      chart1jaar = new Chart(ctx1, {
+      window.chart1 = new Chart(ctx1, {
         type: 'bar',
         data: {
-          labels: ['2025 (17%)', 'Vanaf 2026 (22%)'],
+          labels: ['2025', '2026'],
           datasets: [{
-            label: 'Jaarlijkse bijtelling',
+            label: 'Bijtelling per jaar',
             backgroundColor: ['#FFEB6D', '#000'],
             data: [0, 0]
           }]
         },
         options: {
-          responsive: false,
           plugins: {
-            legend: { display: false },
+            legend: { display: false }
           },
           scales: {
-            y: { beginAtZero: true }
+            x: { ticks: { color: '#000' }},
+            y: { beginAtZero: true, ticks: { color: '#000' }}
           }
         }
       });
 
-      chart5jaar = new Chart(ctx5, {
+      window.chart5 = new Chart(ctx5, {
         type: 'bar',
         data: {
-          labels: ['2025 (17%)', 'Vanaf 2026 (22%)'],
+          labels: ['2025', '2026'],
           datasets: [{
-            label: 'Totale bijtelling over 5 jaar',
+            label: 'Bijtelling over 5 jaar',
             backgroundColor: ['#FFEB6D', '#000'],
             data: [0, 0]
           }]
         },
         options: {
-          responsive: false,
           plugins: {
-            legend: { display: false },
+            legend: { display: false }
           },
           scales: {
-            y: { beginAtZero: true }
+            x: { ticks: { color: '#000' }},
+            y: { beginAtZero: true, ticks: { color: '#000' }}
           }
         }
       });
