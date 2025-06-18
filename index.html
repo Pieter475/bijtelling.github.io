@@ -1,0 +1,124 @@
+<div style="max-width: 520px; font-family: 'Work Sans', system-ui, sans-serif; background: #f9f9f9; padding: 24px; border-radius: 8px; border: 1px solid #ddd;">
+  <h2 style="color: #000000; margin-bottom: 12px;">Besparen met 17% bijtelling</h2>
+  <p style="margin-bottom: 24px;">
+    In 2025 geldt 17% bijtelling tot €30.000. Daarboven betaal je 22%. Vanaf 2026 geldt over het volledige bedrag 22%. 
+    Deze tool laat zien hoeveel je per jaar en in totaal bespaart als je in 2025 nog kiest voor elektrisch.
+  </p>
+
+  <!-- Catalogusprijs -->
+  <label for="prijs" style="font-weight: bold;">Kies een catalogusprijs (tot €60.000+):</label>
+  <input type="range" id="prijs" min="20000" max="60000" value="30000" step="1" oninput="updateBijtelling()" style="width: 100%; margin-bottom: 8px;">
+  <p>Catalogusprijs: <strong>€<span id="prijsValue">30.000</span></strong></p>
+
+  <!-- Resultaten bijtelling -->
+  <div style="background: #FFEB6D; padding: 16px; border-radius: 6px; margin-bottom: 16px;">
+    <h4 style="margin-top: 0;">Netto bijtelling per maand</h4>
+    <p style="margin: 4px 0;">🟡 <strong>In 2025:</strong> €<span id="bijtelling2025">---</span></p>
+    <p style="margin: 4px 0;">⚫ <strong>Vanaf 2026:</strong> €<span id="bijtelling2026">---</span></p>
+  </div>
+
+  <!-- Jaarlijkse en cumulatieve besparing -->
+  <div style="background: #eeeeee; padding: 16px; border-radius: 6px;">
+    <h4 style="margin-top: 0;">Totale besparing als je in 2025 kiest</h4>
+    <ul style="padding-left: 20px; margin: 0;">
+      <li>Na 1 jaar: €<span id="bespaar1">---</span></li>
+      <li>Na 2 jaar: €<span id="bespaar2">---</span></li>
+      <li>Na 3 jaar: €<span id="bespaar3">---</span></li>
+      <li>Na 4 jaar: €<span id="bespaar4">---</span></li>
+      <li>Na 5 jaar: €<span id="bespaar5">---</span></li>
+    </ul>
+  </div>
+
+  <!-- Grafiek -->
+  <canvas id="bijtellingChart" width="500" height="300" style="margin-top: 32px;"></canvas>
+
+  <p style="font-size: 13px; color: #555; margin-top: 16px;">
+    De berekening is een indicatie. Werkelijke bedragen kunnen afwijken op basis van jouw persoonlijke situatie.
+  </p>
+</div>
+
+<!-- Chart.js voor grafiek -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const belastingTarief = 0.406;
+
+  function formatEuro(value) {
+    return value.toLocaleString('nl-NL', { minimumFractionDigits: 0 });
+  }
+
+  function updateBijtelling() {
+    const prijs = parseInt(document.getElementById("prijs").value);
+    const deel17 = Math.min(prijs, 30000) * 0.17;
+    const deel22 = prijs > 30000 ? (prijs - 30000) * 0.22 : 0;
+
+    const totaal2025 = (deel17 + deel22) * belastingTarief;
+    const totaal2026 = prijs * 0.22 * belastingTarief;
+
+    const maand2025 = totaal2025 / 12;
+    const maand2026 = totaal2026 / 12;
+
+    const besparingPerMaand = maand2026 - maand2025;
+
+    document.getElementById("prijsValue").innerText = formatEuro(prijs);
+    document.getElementById("bijtelling2025").innerText = Math.round(maand2025);
+    document.getElementById("bijtelling2026").innerText = Math.round(maand2026);
+
+    for (let i = 1; i <= 5; i++) {
+      const besparing = besparingPerMaand * 12 * i;
+      document.getElementById("bespaar" + i).innerText = formatEuro(Math.round(besparing));
+    }
+
+    if (window.bijtellingChart) {
+      window.bijtellingChart.data.datasets[0].data = Array(5).fill(Math.round(maand2025));
+      window.bijtellingChart.data.datasets[1].data = Array(5).fill(Math.round(maand2026));
+      window.bijtellingChart.update();
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const ctx = document.getElementById('bijtellingChart').getContext('2d');
+    window.bijtellingChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Jaar 1', 'Jaar 2', 'Jaar 3', 'Jaar 4', 'Jaar 5'],
+        datasets: [
+          {
+            label: '2025 (17%)',
+            backgroundColor: '#FFEB6D',
+            data: [0, 0, 0, 0, 0]
+          },
+          {
+            label: 'Vanaf 2026 (22%)',
+            backgroundColor: '#000000',
+            data: [0, 0, 0, 0, 0]
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            labels: {
+              color: '#000',
+              font: {
+                family: 'Work Sans',
+                size: 12
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: { color: '#000' }
+          },
+          y: {
+            beginAtZero: true,
+            ticks: { color: '#000' }
+          }
+        }
+      }
+    });
+
+    updateBijtelling();
+  });
+</script>
